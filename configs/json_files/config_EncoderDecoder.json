@@ -1,0 +1,77 @@
+{
+    "name": "NMT",
+    "n_gpu": 1,
+    "model": "Transformer",
+    "config": {
+        "type": "TransformerModelConfig",
+        "args": {
+            "src_pad_idx": 0,
+            "src_vocab_size": 16,
+            "trg_pad_idx": 0,
+            "trg_vocab_size": 16,
+            "block_size": 200,
+
+            "n_embd": 7,
+
+            "n_encoder_feedforward_layer": 1,
+            "encoder_feedforward_forward_expansion": 4,
+            "n_encoder_block": 8,
+
+            "decoder_add_cross_attention_layer": true,
+            "decoder_output_softmax_temperature": 1.0,
+            "n_decoder_feedforward_layer": 1,
+            "decoder_feedforward_forward_expansion": 4,
+            "n_decoder_block": 8,
+
+            "attention_type": "classic",
+            "n_head": 1,
+            "relative_position_embedding": false,
+            "add_relative_position_to_values": false,
+            "max_relative_position": 100,
+
+            "encoder_feedforward_pdrop": 0.1,
+            "decoder_feedforward_pdrop": 0.1,
+            "attention_pdrop": 0.1,
+            "attention_values_pdrop": 0.1,
+            "embd_pdrop": 0.1
+        }
+    },
+    "data_loader": {
+        "type": "TransformerDataLoader",
+        "args":{
+            "data_dir": "data/processed/",
+            "batch_size": 1,
+            "max_seq_len": 200,
+            "shuffle": true,
+            "validation_split": 0.1,
+            "num_workers": 4
+        }
+    },
+    "loss": "cross_entropy",
+    "metrics": [
+        "accuracy", "top_k_acc", "ppl"
+    ],
+
+    "trainers": {
+        "type": "TeacherForcingTrainer",
+        "args": {
+            "n_epochs": 500,
+            "learning_rate": 1e-4,
+            "betas": [
+                0.9,
+                0.95
+            ],
+            "grad_norm_clip": 1.0,
+            "weight_decay": 0.1,
+            "lr_decay": true,
+            "warmup_tokens": 3e8,
+            "final_tokens": 3e10,
+            "save_dir": "saved/",
+            "save_period": 1,
+            "verbosity": 2,
+            "monitor": "min val_loss",
+            "early_stop": 10,
+            "tensorboard": true
+        }
+    }
+}
